@@ -49,6 +49,10 @@ function Enemy:load()
     self:loadAnimation();   
 end
 
+function Enemy:addSensors()
+    
+end
+
 function Enemy:update(dt)
     self:SyncPhysics();
     self:ai(dt);

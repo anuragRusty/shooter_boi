@@ -138,7 +138,7 @@ BOW = {
     range_y = love.graphics.getHeight()/3;
     animation_time = 0.2;
     bullet_type = "arrow";
-    bullet_scale = 1/2;
+    bullet_scale = 1/3;
     width = TILE;
     height = TILE;
     margin = TILE*(4/5);
@@ -147,13 +147,11 @@ BOW = {
     grid = Anim8.newGrid(17,TILE,17*GUN_FRAMES, TILE*2);
 }
 
-local Gun = {};
+local Gun = Weapon:new();
 
 function Gun:new(config,auto)
     local obj = {
         name = config.name;
-        x = 0;
-        y = 0;
         width = config.width;
         height = config.height;
         margin = config.margin;
@@ -162,18 +160,15 @@ function Gun:new(config,auto)
         range_y = config.range_y;
         mag_cap = config.mag_cap;
         shell_cap = config.shell_cap;
-        angle = 0;
-        color = WHITE;
         bullets = {};
         bullet_type = config.bullet_type;
         firing_time = 1;
         firing_delay = 1/config.firing_rate;
         bullet_speed = config.bullet_speed;
         auto = auto;
-        triggered = false;
         damage = config.damage;
         bullet_scale = config.bullet_scale;
-        gun_texture = config.gun_texture;
+        texture = config.gun_texture;
         gun_sound = config.gun_sound;
         gun_quad = love.graphics.newQuad(0,0,config.width,config.height,config.gun_texture);
         animation_right = Anim8.newAnimation(config.grid('1-6', 1), config.animation_time);
@@ -207,14 +202,9 @@ function Gun:animate(dt)
            self.animation_left:update(dt)
            self.animation_right:update(dt)
        else
-            self.animation_left:gotoFrame(1);
-            self.animation_right:gotoFrame(1);
+           self.animation_left:gotoFrame(1);
+           self.animation_right:gotoFrame(1);
        end
-end
-
-function Gun:syncPhysics(x,y,angle)
-    self.x,self.y = x + self.margin*math.cos(angle),y + self.margin*math.sin(angle);
-    self.angle = angle;
 end
 
 function Gun:shoot()
@@ -256,10 +246,10 @@ function Gun:bulletsDraw()
 end
 
 function Gun:drawTexture()
-    if self.angle < -math.pi/2 or self.angle > math.pi/2 then
-       self.animation_left:draw(self.gun_texture,-self.width/2,-self.height/2);
+    if self:isLeft() then
+       self.animation_left:draw(self.texture,-self.width/2,-self.height/2);
     else
-       self.animation_right:draw(self.gun_texture,-self.width/2,-self.height/2);
+       self.animation_right:draw(self.texture,-self.width/2,-self.height/2);
     end
 end
 
@@ -274,7 +264,7 @@ function Gun:draw()
 end
 
 function Gun:drawIcon()
-    love.graphics.draw(self.gun_texture,self.gun_quad,Camera.x,Camera.y + (love.graphics.getHeight()/2-self.height*2),0,2);
+    love.graphics.draw(self.texture,self.gun_quad,Camera.x,Camera.y + (love.graphics.getHeight()/2-self.height*2),0,2);
 end
 
 return Gun;

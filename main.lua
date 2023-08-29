@@ -16,6 +16,7 @@ WHITE = {1,1,1,1}
 Anim8 = require("/libs/anim8/anim8");
 Sti = require("/libs/sti");
 Entity = require("entity");
+Weapon = require("weapon");
 Gun = require("gun");
 Bullet = require("bullet");
 Enemy = require("enemy");
