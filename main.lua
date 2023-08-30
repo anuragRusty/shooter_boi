@@ -1,5 +1,7 @@
-love.graphics.setDefaultFilter("nearest", "nearest");
+love.graphics.setDefaultFilter("nearest","nearest");
 CURSOR = love.mouse.newCursor("assets/spritesheets/crosshair.png",8,8);
+FONT = love.graphics.newFont("assets/font/vt323.ttf",32);
+love.graphics.setFont(FONT);
 love.mouse.setCursor(CURSOR);
 
 Scale = 2;
@@ -17,6 +19,7 @@ Anim8 = require("/libs/anim8/anim8");
 Sti = require("/libs/sti");
 Entity = require("entity");
 Weapon = require("weapon");
+Spear = require("spear");
 Gun = require("gun");
 Bullet = require("bullet");
 Enemy = require("enemy");

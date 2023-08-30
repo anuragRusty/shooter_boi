@@ -5,13 +5,12 @@ ARROW_GRID = Anim8.newGrid(TILE,11,ARROW_TEXTURE:getWidth(),ARROW_TEXTURE:getHei
 
 local Bullet = {};
 
-function Bullet:new(type,x,y,range_x,range_y,angle,speed,damage,scale)
+function Bullet:new(type,x,y,range,angle,speed,damage,scale)
     local obj = {
         x = x + math.cos(angle)*TILE/1.5;
         y = y + math.sin(angle)*TILE/1.5;
         damage = damage;
-        range_x = range_x,
-        range_y = range_y,
+        range = range;
         angle = angle;
         radius = TILE/4*scale;
         scale = scale;
@@ -64,7 +63,7 @@ function Bullet:go()
 end
 
 function Bullet:isExhausted()
-    return not self.body:isBullet() or math.abs(self.x - self.body:getX()) > self.range_x + TILE or math.abs(self.y - self.body:getY()) > self.range_y + TILE;
+    return math.sqrt((self.x - self.body:getX())^2 + (self.y - self.body:getY())^2) > self.range or not self.body:isBullet(); 
 end
 
 function Bullet:draw()

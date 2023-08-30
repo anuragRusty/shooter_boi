@@ -8,8 +8,7 @@ PISTOL = {
     bullet_speed = 900;
     damage = 80;
     zoom = 2;
-    range_x = love.graphics.getWidth()/4;
-    range_y = love.graphics.getHeight()/4;
+    range = (love.graphics.getWidth()/4 + love.graphics.getHeight()/4)/2;
     animation_time = 0.05;
     bullet_type = "bullet";
     bullet_scale = 1/4;
@@ -29,8 +28,7 @@ SHOTGUN = {
     bullet_speed = 2000;
     damage = 90;
     zoom = 2;
-    range_x = love.graphics.getWidth()/10;
-    range_y = love.graphics.getHeight()/10;
+    range = (love.graphics.getWidth()/7 + love.graphics.getHeight()/7)/2;
     animation_time = 0.22;
     bullet_type = "bullet";
     bullet_scale = 1/3;
@@ -50,8 +48,7 @@ AK47 = {
     bullet_speed = 700;
     damage = 50;
     zoom = 1.8;
-    range_x = love.graphics.getWidth()/5;
-    range_y = love.graphics.getHeight()/5;
+    range = (love.graphics.getWidth()/4 + love.graphics.getHeight()/4)/2;
     animation_time = 0.02;
     bullet_type = "bullet";
     bullet_scale = 1/4;
@@ -71,8 +68,7 @@ SMG = {
     bullet_speed = 400;
     damage = 20;
     zoom = 2;
-    range_x = love.graphics.getWidth()/7;
-    range_y = love.graphics.getHeight()/7;
+    range = (love.graphics.getWidth()/5 + love.graphics.getHeight()/5)/2;
     animation_time = 0.01;
     bullet_type = "bullet";
     bullet_scale = 1/4;
@@ -92,8 +88,7 @@ SNIPER = {
     bullet_speed = 2000;
     damage = 200;
     zoom = 1.5;
-    range_x = love.graphics.getWidth();
-    range_y = love.graphics.getHeight();
+    range = (love.graphics.getWidth() + love.graphics.getHeight())/2;
     animation_time = 0.22;
     bullet_type = "bullet";
     bullet_scale = 1/3;
@@ -113,8 +108,7 @@ BLASTER = {
     bullet_speed = 300;
     damage = 200;
     zoom = 2;
-    range_x = love.graphics.getWidth()/4;
-    range_y = love.graphics.getHeight()/4;
+    range = (love.graphics.getWidth()/4 + love.graphics.getHeight())/4;
     animation_time = 0.2;
     bullet_type = "bullet";
     bullet_scale = 1;
@@ -134,8 +128,7 @@ BOW = {
     bullet_speed = 150;
     damage = 460;
     zoom = 2;
-    range_x = love.graphics.getWidth()/3;
-    range_y = love.graphics.getHeight()/3;
+    range = (love.graphics.getWidth()/4 + love.graphics.getHeight())/4;
     animation_time = 0.2;
     bullet_type = "arrow";
     bullet_scale = 1/3;
@@ -156,8 +149,7 @@ function Gun:new(config,auto)
         height = config.height;
         margin = config.margin;
         zoom = config.zoom;
-        range_x = config.range_x;
-        range_y = config.range_y;
+        range = config.range;
         mag_cap = config.mag_cap;
         shell_cap = config.shell_cap;
         bullets = {};
@@ -215,6 +207,18 @@ function Gun:shoot()
    end
 end
 
+function Gun:loadSensor()
+    self.shape = love.physics.newRectangleShape(self.range,self.height);
+    self.body = love.physics.newBody(World,self.x,self.y,"kinematic");
+    self.fixture = love.physics.newFixture(self.body,self.shape);
+    self.fixture:setSensor(true);
+end
+
+function Gun:updateSensor()
+   self.body:setPosition(self.x + math.cos(self.angle)*self.range,self.y + math.sin(self.angle)*self.range);
+   self.triggered = self.body:isTouching(Player.body);
+end
+
 function Gun:shooting()
     if self.firing_time > self.firing_delay then
         if self.auto then
@@ -225,6 +229,7 @@ function Gun:shooting()
         elseif love.mouse.isDown(1) and self.triggered then
            self:fire();
            self.gun_sound:play();
+           self.mag_cap = self.mag_cap - 1;
         end
     end
 end
@@ -232,7 +237,7 @@ end
 function Gun:fire()
     local angle_margins = {0,0.10,-0.10,0.20,-0.20};
     for i = 1,self.shell_cap,1 do
-    local bullet = Bullet:new(self.bullet_type,self.x,self.y,self.range_x,self.range_y,self.angle+angle_margins[i],self.bullet_speed,self.damage,self.bullet_scale);
+    local bullet = Bullet:new(self.bullet_type,self.x,self.y,self.range,self.angle+angle_margins[i],self.bullet_speed,self.damage,self.bullet_scale);
     bullet:load();
     table.insert(self.bullets,bullet);
     end
@@ -255,16 +260,14 @@ end
 
 function Gun:draw()
     self:bulletsDraw();
-    love.graphics.setColor(self.color);
-    love.graphics.push();
-    love.graphics.translate(self.x,self.y);
-    love.graphics.rotate(self.angle);
+    self:drawTransfomation();
     self:drawTexture();
-    love.graphics.pop();
+    self:clearTransfomation();
 end
 
 function Gun:drawIcon()
     love.graphics.draw(self.texture,self.gun_quad,Camera.x,Camera.y + (love.graphics.getHeight()/2-self.height*2),0,2);
+    love.graphics.print("x"..tostring(self.mag_cap),Camera.x + TILE*2,Camera.y + (love.graphics.getHeight()/2-TILE),0,2/3,2/3);
 end
 
 return Gun;

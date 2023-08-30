@@ -22,7 +22,7 @@ function Weapon:syncPhysics(x,y,angle)
 end
 
 function Weapon:isLeft()
-  return self.angle < -math.pi/2 or self.angle > math.pi/2;
+    return self.angle < -math.pi/2 or self.angle > math.pi/2;
 end
 
 function Weapon:drawTransfomation()

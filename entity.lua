@@ -1,4 +1,7 @@
 HEALTH_TILE = love.graphics.newImage("assets/spritesheets/health_tile.png");
+HEALTH_BORDER = love.graphics.newImage("assets/spritesheets/health_border.png");
+MAX_HEALTH_BARS = HEALTH_BORDER:getWidth()/HEALTH_TILE:getWidth()-1;
+
 
 local Entity = {};
 
@@ -18,6 +21,7 @@ function Entity:new(config)
         acceleration = config.acceleration or 0,
         friction = config.friction or 0,
         health = config.health or 100,
+        max_health = config.health or 100,
         angle = config.angle or 0,
         angle_dying = 0;
         dx = 0,
@@ -52,6 +56,10 @@ function Entity:move()
     self.body:setLinearVelocity(self.dx*self.speed,self.dy*self.speed);
 end
 
+function Entity:isLeft()
+   return self.angle < -math.pi/2 or self.angle > math.pi/2;
+ end
+
 function Entity:syncPosition()
     self.dx = math.cos(self.angle);
     self.dy = math.sin(self.angle);
@@ -63,7 +71,7 @@ function Entity:animateDeath()
       self.state = 'dying';
    end
    if self.state == 'dying' and math.abs(self.angle_dying) < math.pi/2 then
-      self.angle_dying = self.angle_dying + 0.10 * ((self.angle < -math.pi/2 or self.angle > math.pi/2) and 1 or -1);
+      self.angle_dying = self.angle_dying + 0.10 * (self:isLeft() and 1 or -1);
       self.shoted = true;
    end
    if math.abs(self.angle_dying) >= math.pi/2 then
@@ -142,11 +150,13 @@ function Entity:animate(dt)
    end
 end
 
-function Entity:drawHealthBar(x,y)
-    love.graphics.draw(HEALTH_TILE,x,y,0,4,1);
-    love.graphics.setColor(0,0,0,1);
-    love.graphics.rectangle("line",x,y,TILE/   2*4,TILE/2);
-    love.graphics.setColor(WHITE);
+function Entity:drawHealthBar(x,y,scale)
+    local health_ratio = self.health/self.max_health;
+    local bars = MAX_HEALTH_BARS*health_ratio;
+    for i = 0,bars,1 do
+    love.graphics.draw(HEALTH_TILE,x + (i*HEALTH_TILE:getWidth()*scale),y,0,scale,scale);
+    end
+    love.graphics.draw(HEALTH_BORDER,x,y,0,scale,scale);
 end
 
 function Entity:drawSprite()
@@ -155,19 +165,19 @@ function Entity:drawSprite()
     love.graphics.translate(self.x,self.y);
     love.graphics.rotate(self.angle_dying);
     if self.moving and self.state == 'alive' then
-        if self.angle < -math.pi/2 or self.angle > math.pi/2 then
+        if self:isLeft() then
            self.animation_running_left:draw(self.texture, -self.width/2*self.scale, -self.height/2*self.scale,0,self.scale,self.scale);
         else
            self.animation_running_right:draw(self.texture, -self.width/2*self.scale, -self.height/2*self.scale,0,self.scale,self.scale);
         end
      elseif self.state == 'alive' or self.state == 'dying' then
-        if self.angle < -math.pi/2 or self.angle > math.pi/2 then
+        if self:isLeft() then
             self.animation_standing_left:draw(self.texture, -self.width/2*self.scale, -self.height/2*self.scale,0,self.scale,self.scale);
          else
             self.animation_standing_right:draw(self.texture, -self.width/2*self.scale, -self.height/2*self.scale,0,self.scale,self.scale);
          end
       elseif self.state == 'spawn' then
-         if self.angle < -math.pi/2 or self.angle > math.pi/2 then
+         if self:isLeft() then
             self.animation_spawn_left:draw(self.texture, -self.width/2*self.scale, -self.height/2*self.scale,0,self.scale,self.scale);
          else
             self.animation_spawn_right:draw(self.texture, -self.width/2*self.scale, -self.height/2*self.scale,0,self.scale,self.scale);

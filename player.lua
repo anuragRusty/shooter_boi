@@ -21,6 +21,7 @@ PLAYER = {
 Player = Entity:new(PLAYER);
 
 function Player:load()
+    self.score = 0;
     self:loadPhysics();
     self:loadAnimation();
     self.gun_index = 1;
@@ -43,18 +44,13 @@ function Player:gunZoom() --TEMP CHANGE
 end
 
 function Player:changeGun(x,y)
-   self.gun_index = self.gun_index + 1;
-   if y > 0 then
-      if self.gun_index > #PLAYER.guns then
-         self.gun_index = 1;
-      end
-   elseif y < 0 then
-      self.gun_index = self.gun_index -1;
-      if self.gun_index <= 0 then
-         self.gun_index = #PLAYER.guns;
-      end
-   end
-   self.gun = PLAYER.guns[self.gun_index];   
+    self.gun_index = self.gun_index + y;
+    if self.gun_index < 1 then
+       self.gun_index = #PLAYER.guns;
+    elseif self.gun_index > #PLAYER.guns then
+      self.gun_index = 1;
+    end
+    self.gun = PLAYER.guns[self.gun_index];   
 end
 
 function Player:SyncPhysics()
@@ -84,9 +80,19 @@ function Player:go(dt)
 end
 
 function Player:drawStatus()
-    self:drawHealthBar(Camera.x + 3/2*TILE,Camera.y+TILE/2);
-    self.animation_standing_right:draw(self.texture,Camera.x,Camera.y,0,3/2,3/2);
+    self:drawHealthBar(Camera.x + TILE/3,Camera.y + TILE/3,1);
     self.gun:drawIcon();
+    self:drawScore();
+end
+
+function Player:drawScore()
+    local zeroes = "000000";
+    local score = tostring(self.score);
+    
+    for i = 1,string.len(score),1 do
+       zeroes = string.sub(zeroes,1,string.len(zeroes)-1);    
+    end
+    love.graphics.print(zeroes ..score,Camera.x + love.graphics.getWidth()/2-TILE*3,Camera.y + TILE/6);
 end
 
 function Player:draw()

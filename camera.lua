@@ -17,6 +17,10 @@ function Camera:update(x,y,scale)
         self.x = 0;
     end
 
+    if self.y < 0 then
+        self.y = 0;
+    end
+
     if self.x + love.graphics.getWidth()/2 > self.max_x then
         self.x = self.max_x - love.graphics.getWidth()/2;
     end
@@ -24,11 +28,8 @@ function Camera:update(x,y,scale)
     if self.y + love.graphics.getHeight()/2 > self.max_y then
         self.y = self.max_y - love.graphics.getHeight()/2;
     end
-
-    if self.y < 0 then
-        self.y = 0;
-    end
 end
+    
 
 function Camera:apply()
     love.graphics.push()

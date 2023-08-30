@@ -11,7 +11,9 @@ function Wave:update(dt)
         enemy:update(dt);
         if enemy.state == 'dead' and not enemy.shoted then
             enemy.body:destroy();
+            enemy.weapon.body:destroy();
             table.remove(self.enemies,i);
+            Player.score = Player.score + 10;
         end
     end
     self:reGenEnemies();
