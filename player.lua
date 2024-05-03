@@ -67,11 +67,12 @@ function Player:go(dt)
     else
         self:applyFriction(dt);
         self.moving = false;
-        self.gun.triggered = false;
     end
 
     if love.mouse.isDown(1) then
        self.gun.triggered = true;
+    else
+       self.gun.triggered = false;
     end
 
     if love.keyboard.isDown("space") then
@@ -88,8 +89,7 @@ end
 function Player:drawScore()
     local zeroes = "000000";
     local score = tostring(self.score);
-    
-    for i = 1,string.len(score),1 do
+    for _ = 1,string.len(score),1 do
        zeroes = string.sub(zeroes,1,string.len(zeroes)-1);    
     end
     love.graphics.print(zeroes ..score,Camera.x + love.graphics.getWidth()/2-TILE*3,Camera.y + TILE/6);

@@ -158,11 +158,12 @@ function Gun:new(config,auto)
         firing_delay = 1/config.firing_rate;
         bullet_speed = config.bullet_speed;
         auto = auto;
+        type = auto and "enemy" or "player";
         damage = config.damage;
         bullet_scale = config.bullet_scale;
         texture = config.gun_texture;
         gun_sound = config.gun_sound;
-        gun_quad = love.graphics.newQuad(0,0,config.width,config.height,config.gun_texture);
+        gun_quad = love.graphics.newQuad(0,0,config.width,config.height,config.gun_texture,1);
         animation_right = Anim8.newAnimation(config.grid('1-6', 1), config.animation_time);
         animation_left = Anim8.newAnimation(config.grid('1-6', 2), config.animation_time);
     };
@@ -207,18 +208,6 @@ function Gun:shoot()
    end
 end
 
-function Gun:loadSensor()
-    self.shape = love.physics.newRectangleShape(self.range,self.height);
-    self.body = love.physics.newBody(World,self.x,self.y,"kinematic");
-    self.fixture = love.physics.newFixture(self.body,self.shape);
-    self.fixture:setSensor(true);
-end
-
-function Gun:updateSensor()
-   self.body:setPosition(self.x + math.cos(self.angle)*self.range,self.y + math.sin(self.angle)*self.range);
-   self.triggered = self.body:isTouching(Player.body);
-end
-
 function Gun:shooting()
     if self.firing_time > self.firing_delay then
         if self.auto then
@@ -235,13 +224,22 @@ function Gun:shooting()
 end
 
 function Gun:fire()
-    local angle_margins = {0,0.10,-0.10,0.20,-0.20};
-    for i = 1,self.shell_cap,1 do
-    local bullet = Bullet:new(self.bullet_type,self.x,self.y,self.range,self.angle+angle_margins[i],self.bullet_speed,self.damage,self.bullet_scale);
+    local angle_margins = self:genAngles(self.shell_cap);
+    for i = 1,#angle_margins,1 do
+    local bullet = Bullet:new(self.type,self.bullet_type,self.x,self.y,self.range,self.angle+angle_margins[i],self.bullet_speed,self.damage,self.bullet_scale);
     bullet:load();
     table.insert(self.bullets,bullet);
     end
     self.firing_time = 0;
+end
+
+function Gun:genAngles(n)
+    local list = {0};
+    for i = 1,math.floor(n/2),1 do
+        table.insert(list,i/10);
+        table.insert(list,-(i/10));
+    end
+    return list;
 end
 
 function Gun:bulletsDraw()

@@ -2,7 +2,6 @@ HEALTH_TILE = love.graphics.newImage("assets/spritesheets/health_tile.png");
 HEALTH_BORDER = love.graphics.newImage("assets/spritesheets/health_border.png");
 MAX_HEALTH_BARS = HEALTH_BORDER:getWidth()/HEALTH_TILE:getWidth()-1;
 
-
 local Entity = {};
 
 function Entity:new(config)
@@ -77,6 +76,8 @@ function Entity:animateDeath()
    if math.abs(self.angle_dying) >= math.pi/2 then
       self.state = 'dead';
       self.moving = false;
+      self.animation_standing_left:gotoFrame(3);
+      self.animation_standing_right:gotoFrame(4);
    end
 end
 
@@ -170,7 +171,7 @@ function Entity:drawSprite()
         else
            self.animation_running_right:draw(self.texture, -self.width/2*self.scale, -self.height/2*self.scale,0,self.scale,self.scale);
         end
-     elseif self.state == 'alive' or self.state == 'dying' then
+     elseif self.state == 'alive' or self.state == 'dying' or self.state == 'dead' then
         if self:isLeft() then
             self.animation_standing_left:draw(self.texture, -self.width/2*self.scale, -self.height/2*self.scale,0,self.scale,self.scale);
          else

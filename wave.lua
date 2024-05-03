@@ -1,8 +1,10 @@
+local enemy_list = {BOWMAN};
+
 Wave = {};
 
 function Wave:load()
     self.enemies = {};
-    self.count = math.random(1,5);
+    self.count = 1;
     self:GenEnemies(self.count);
 end
 
@@ -27,14 +29,27 @@ function Wave:reGenEnemies()
 end
 
 function Wave:GenEnemies(count)
-    for i = 1,count,1 do
-        local enemy = Enemy:new(PUMPKIN);
+    for _ = 1,count,1 do
+        local enemy_type = enemy_list[math.random(1,#enemy_list)];
+        local enemy = Enemy:new(enemy_type);
         table.insert(self.enemies,enemy);
     end
 
     for _,enemy in pairs(self.enemies) do
         enemy:load();
     end
+end
+
+function Wave:beginContact(fixture1,fixture2,contact)
+   for _,enemy in pairs(self.enemies) do
+    enemy:beginContact(fixture1,fixture2,contact);
+   end    
+end
+
+function Wave:endContact(fixture1,fixture2,contact)
+    for _,enemy in pairs(self.enemies) do
+     enemy:endContact(fixture1,fixture2,contact);
+    end   
 end
 
 function Wave:draw()

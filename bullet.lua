@@ -5,7 +5,7 @@ ARROW_GRID = Anim8.newGrid(TILE,11,ARROW_TEXTURE:getWidth(),ARROW_TEXTURE:getHei
 
 local Bullet = {};
 
-function Bullet:new(type,x,y,range,angle,speed,damage,scale)
+function Bullet:new(type,bullet_type,x,y,range,angle,speed,damage,scale)
     local obj = {
         x = x + math.cos(angle)*TILE/1.5;
         y = y + math.sin(angle)*TILE/1.5;
@@ -18,9 +18,10 @@ function Bullet:new(type,x,y,range,angle,speed,damage,scale)
         dx = 0;
         dy = 0;
         type = type;
+        bullet_type = bullet_type;
         speed = speed;
-        texture = type == "bullet" and BULLET_TEXTURE or ARROW_TEXTURE;
-        animation = type == "bullet" and Anim8.newAnimation(BULLET_GRID("1-3",1),0.02) or Anim8.newAnimation(ARROW_GRID("1-3",1),0.3);
+        texture = bullet_type == "bullet" and BULLET_TEXTURE or ARROW_TEXTURE;
+        animation = bullet_type == "bullet" and Anim8.newAnimation(BULLET_GRID("1-3",1),0.02) or Anim8.newAnimation(ARROW_GRID("1-3",1),0.3);
     };
     setmetatable(obj,self);
     self.__index = self;
@@ -33,6 +34,7 @@ function Bullet:load()
     self.fixture = love.physics.newFixture(self.body, self.shape);
     self.body:setMass(1000);
     self.body:setBullet(true);
+    self.fixture:setUserData(self.type);
 end
 
 function Bullet:update(dt)
@@ -43,7 +45,7 @@ end
 
 function Bullet:collisions()
     for _,enemy in pairs(Wave.enemies) do
-        if self.body:isTouching(enemy.body) then
+        if self.body:isTouching(enemy.body) and self.fixture:getUserData() == "player" then
             self.body:setType("kinematic");
             self.body:setBullet(false);
             enemy.shoted = true;
@@ -51,8 +53,9 @@ function Bullet:collisions()
         end
     end
 
-    if self.body:isTouching(Player.body) then
+    if self.body:isTouching(Player.body) and self.fixture:getUserData() == "enemy" then
        Player.shoted = true;
+       self.body:setBullet(false);
     end
 end
 
@@ -78,10 +81,8 @@ end
 function BulletBeginContact(fixture1,fixture2,contact)
     local body1 = fixture1:getBody();
     local body2 = fixture2:getBody();
-    if body1:getType() == "static" and body2:isBullet() and contact:isTouching() then
+    if body1:getType() == "static" and body2:isBullet() or body2:getType() == "static" and body1:isBullet() then
         body2:setBullet(false);
-    elseif body2:getType() == "static" and body1:isBullet() and contact:isTouching() then
-        body1:setBullet(false);
     end
 end
 

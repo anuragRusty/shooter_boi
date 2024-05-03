@@ -28,22 +28,9 @@ require("player");
 require("wave");
 require("camera");
 
-local function beginContact(fixture1, fixture2,contact)
-   BulletBeginContact(fixture1,fixture2,contact);
-end
-
-local function endContact()
-end
-
-local function preSolve()
-end
-
-local function postSolve()
-end
-
 function love.load()
-    World = love.physics.newWorld(0,0);
-    World:setCallbacks(beginContact, endContact, preSolve, postSolve)
+    World = love.physics.newWorld(0,0,false);
+    World:setCallbacks(BeginContact, EndContact, PreSolve, PostSolve)
     love.physics.setMeter(TILE_SIZE)
     Map = Sti("map/dugeon.lua",{"box2d"});
     Map.layers.solid.visible = false;
@@ -58,14 +45,14 @@ function love.update(dt)
     World:update(dt);
     Camera:update(Player.x,Player.y,Scale);
     Player:update(dt);
-    Wave:update(dt);
+    --Wave:update(dt);
 end
 
 function love.draw()
     Camera:apply();
     Map:draw(-Camera.x,-Camera.y,Scale,Scale);
     Player:draw();
-    Wave:draw();
+    --Wave:draw();
     Player:drawStatus();    
     Camera:clear();
 end
@@ -74,3 +61,17 @@ function love.wheelmoved(x,y)
     Player:changeGun(x,y);
 end
 
+function BeginContact(fixture1, fixture2,contact)
+    BulletBeginContact(fixture1,fixture2,contact);
+    Wave:beginContact(fixture1,fixture2,contact);
+ end
+  
+ function EndContact(fixture1,fixture2,contact)
+    Wave:endContact(fixture1,fixture2,contact);
+ end
+ 
+ function PreSolve()
+ end
+ 
+ function PostSolve()
+ end
