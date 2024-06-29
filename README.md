@@ -3,7 +3,7 @@
 **Shooter Boi** is a top-down shooter pixel art game where players navigate through levels using mouse controls. The game features six different weapons, each with its own unique mechanics, all crafted using Piskel and Figma. Shooter Boi utilizes the Anim8 and Simple Tiles Implementation (STI) libraries for animations and tile management.
 
 ## Gameplay
-![Gameplay](https://i.ibb.co/LkVV2F0/shooter-boi.png)
+[![shooter-boi-ezgif-com-cut.gif](https://i.postimg.cc/90nNCbVR/shooter-boi-ezgif-com-cut.gif)](https://postimg.cc/xNLPPKXn)
 
 ## Features
 - **Mouse Controls:** 
